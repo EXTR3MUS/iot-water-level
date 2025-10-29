@@ -1,2 +1,4 @@
 set -euxo pipefail
-docker compose up
+
+echo "### Starting MQTT broker"
+docker compose up -f ./broker/docker-compose.yml
