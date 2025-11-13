@@ -27,7 +27,7 @@ const responseText = computed(() =>
 </script>
 
 <template>
-  <h1>You did it!</h1>
+  <h1>Water Level</h1>
   <button @click="fetchData" :disabled="loading">
     {{ loading ? 'Loading…' : 'Fetch test data' }}
   </button>
