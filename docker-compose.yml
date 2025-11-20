@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./broker/config:/mosquitto/config
+      - ./broker/data:/mosquitto/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=esp32/test/hello_world_001
+    depends_on:
+      - mosquitto
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  # simulator:
+  #   build:
+  #     context: ./simulator
+  #     dockerfile: Dockerfile
+  #   container_name: simulator
+  #   restart: unless-stopped
+  #   environment:
+  #     - MQTT_HOST=mosquitto
+  #     - MQTT_PORT=1883
+  #     - MQTT_TOPIC=esp32/test/hello_world_001
+  #     - MQTT_INTERVAL=1
+  #     - BUFFER_ITEMS=2
+  #   depends_on:
+  #     - mosquitto
+
+networks:
+  default:
+    name: iot-water-level_net

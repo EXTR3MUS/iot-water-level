@@ -23,7 +23,7 @@ app.add_middleware(
 DB_PATH = os.path.join(os.path.dirname(__file__), "water_levels.db")
 BRAZIL_TZ = timezone(timedelta(hours=-3))
 
-def fetch_latest_levels(limit: int = 12):
+def fetch_latest_levels(limit: int = 100):
     try:
         with sqlite3.connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row

@@ -6,7 +6,8 @@ import sqlite3
 from datetime import datetime
 
 # allow overriding host + credentials via env
-BROKER_HOST =  "127.0.0.1" # os.getenv("MQTT_HOST", "127.0.0.1")
+# default stays localhost for local dev, but Compose will set `MQTT_HOST=mosquitto`
+BROKER_HOST = os.getenv("MQTT_HOST", "127.0.0.1")
 MQTT_USERNAME = os.getenv("MQTT_USERNAME")
 MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 
