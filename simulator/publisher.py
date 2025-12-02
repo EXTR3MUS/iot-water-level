@@ -37,10 +37,8 @@ def connect():
         return False
 
 def make_payload(base=1.0):
-    # create a payload similar to the embedded code: { "buffer": [ {"water_level": x}, ... ] }
     buf = []
     for i in range(BUFFER_ITEMS):
-        # randomize around base + i*0.1
         value = round(base + i * 0.1 + random.uniform(-0.2, 0.2), 2)
         buf.append({"water_level": value})
     return {"buffer": buf}
@@ -60,16 +58,33 @@ def main():
             sys.exit(1)
 
     print(f"Publishing to topic '{MQTT_TOPIC}' every {INTERVAL}s (broker={MQTT_HOST}:{MQTT_PORT})")
+    
+    # Loop sequence: 4.0 -> 2.7 -> 1.0 -> 4.0 (5 seconds each, repeating)
+    loop_sequence = [
+        (4.0, 5),   # normal level for 5 seconds
+        (2.7, 5),   # warning level for 5 seconds
+        (1.0, 5),   # critical level for 5 seconds
+    ]
+    
+    seq_index = 0
+    seq_time_left = loop_sequence[0][1]
+    current_value = loop_sequence[0][0]
+    
     try:
         while not stop:
-            payload = make_payload(base)
+            payload = {"buffer": [{"water_level": current_value}] * BUFFER_ITEMS}
             payload_str = json.dumps(payload)
             rc = client.publish(MQTT_TOPIC, payload_str)
-            # rc is MQTTMessageInfo; wait for mid ack if needed
             print(f"Published: {payload_str}")
-            # slowly change base to simulate level drift
-            base += random.uniform(-0.05, 0.1)
+            
             time.sleep(INTERVAL)
+            seq_time_left -= INTERVAL
+            
+            # Move to next sequence step and loop back to start
+            if seq_time_left <= 0:
+                seq_index = (seq_index + 1) % len(loop_sequence)
+                current_value = loop_sequence[seq_index][0]
+                seq_time_left = loop_sequence[seq_index][1]
     except Exception as e:
         print(f"Error in main loop: {e}")
     finally:
