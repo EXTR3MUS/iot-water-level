@@ -9,14 +9,14 @@ import struct
 
 # Configuration
 SAMPLE_RATE = 44100  # Hz
-DURATION = 5.0       # seconds
+DURATION = 10.0      # seconds
 AMPLITUDE = 0.5      # 0.0 to 1.0
 
 # Frequency stepping parameters
 FREQ_LOW = 500       # Hz
 FREQ_HIGH = 1000     # Hz
-STEP_DURATION = 0.2  # seconds per frequency step
-NUM_STEPS = 10       # number of discrete frequency steps
+STEP_DURATION = 0.5  # seconds per frequency step
+NUM_STEPS = 2        # number of discrete frequency steps (low, high)
 
 OUTPUT_FILE = "alarm.wav"
 
@@ -36,9 +36,8 @@ def main():
     num_segments = int(DURATION / STEP_DURATION)
     
     for i in range(num_segments):
-        # Calculate discrete frequency step (no interpolation)
-        step_index = i % NUM_STEPS
-        freq = FREQ_LOW + (FREQ_HIGH - FREQ_LOW) * (step_index / (NUM_STEPS - 1))
+        # Alternate between low and high frequency (2 steps)
+        freq = FREQ_LOW if (i % 2 == 0) else FREQ_HIGH
         
         # Generate triangle wave segment at this frequency
         samples = generate_triangle_wave(freq, STEP_DURATION, SAMPLE_RATE, AMPLITUDE)
