@@ -3,7 +3,6 @@ import json
 import os
 import paho.mqtt.client as mqtt
 import sqlite3
-from datetime import datetime
 
 # allow overriding host + credentials via env
 # default stays localhost for local dev, but Compose will set `MQTT_HOST=mosquitto`
